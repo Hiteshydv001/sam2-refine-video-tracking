@@ -1,16 +1,26 @@
 # SAM 2 Video Segmentation Project - Quick Start Guide
 
 ## Overview
-This project implements **SAM2-Refine**, a robust video segmentation system that combines the SAM 2 model with Kalman Filter-based occlusion handling for autonomous driving scenarios.
+This project implements **SAM2-Refine+**, a robust video segmentation system that augments SAM 2 with adaptive quality gating, memory-backed occlusion recovery, and automated evaluation utilities for autonomous driving scenarios.
 
 ## Project Structure
 ```
 Megaminds IT Services/
 ├── src/
-│   ├── video_loader.py       # Loads video frames
-│   ├── sam2_model.py          # Mock SAM 2 predictor
-│   ├── occlusion_handler.py   # Kalman Filter tracker
-│   └── pipeline.py            # Main processing pipeline
+│   ├── video_loader.py         # Frame streamer + synthetic ground truth
+│   ├── sam2_model.py           # Mock SAM 2 predictor
+│   ├── occlusion_handler.py    # Kalman tracker with memory hooks
+│   ├── quality_controller.py   # Adaptive confidence gating
+│   ├── memory_manager.py       # Quality-aware mask buffer
+│   ├── metrics.py              # Per-frame metric logger
+│   └── pipeline.py             # CLI-enabled orchestration
+├── scripts/
+│   └── summarize_metrics.py    # Aggregates experiment metrics
+├── docs/
+│   ├── research_report.md      # Literature review + algorithm write-up
+│   ├── case_study.md           # Business-focused case analysis
+│   └── presentation_script.md  # 15-minute narration outline
+├── artifacts/                  # Auto-generated videos, frames, plots (per run)
 ├── requirements.txt
 └── README.md
 ```
@@ -28,20 +38,28 @@ This will install:
 - `numpy` (for numerical operations)
 
 ### Step 2: Run the Pipeline
-```bash
-cd src
-python pipeline.py
+Use the virtual environment created above or your preferred interpreter:
+```powershell
+# Proposed SAM2-Refine+ configuration
+& ".venv\Scripts\python.exe" src\pipeline.py --tag proposed
+
+# Baseline Kalman-only ablation
+& ".venv\Scripts\python.exe" src\pipeline.py --tag baseline_kf --disable-quality --disable-memory
+
+# Summarize metrics for report tables
+& ".venv\Scripts\python.exe" scripts\summarize_metrics.py artifacts\baseline_kf artifacts\proposed
 ```
 
 ## What Happens When You Run It?
 
-Since no input video is provided, the system will:
-1. **Generate a dummy video** with 100 frames showing a moving green circle
-2. **Simulate occlusion** by removing the object between frames 40-60
+By default the system will:
+1. **Generate a dummy video** (100 frames) with a moving green circle.
+2. **Simulate occlusion** by removing the object between frames 41–60.
 3. **Process each frame** through:
-   - SAM 2 Mock Predictor (detects the green circle)
-   - Kalman Filter Tracker (predicts position during occlusion)
-4. **Generate output video**: `output_video.avi` in the project root
+   - SAM2 mock predictor (HSV-based segmentation proxy).
+   - Quality controller (adaptive threshold unless disabled).
+   - Kalman tracker with optional memory recovery.
+4. **Generate run-specific videos** such as `output_video_proposed.avi` in the project root and store diagnostics under `artifacts/<tag>`.
 
 ## Understanding the Output
 
@@ -84,16 +102,12 @@ ffmpeg -i output_video.avi output_video.mp4
 
 ## Next Steps for Assignment Submission
 
-1. ✅ Run the code to generate `output_video.avi`
-2. ✅ Review all documentation files
-3. 📹 Record your 15-minute video presentation using the provided script
-4. 📦 Create a ZIP file containing:
-   - All `src/` code files
-   - `requirements.txt`
-   - `README.md`
-   - Documentation (Comprehensive Report, Case Study, etc.)
-   - `output_video.avi`
-5. 📤 Submit the ZIP file
+1. ✅ Run baseline and proposed pipelines to produce artifacts.
+2. ✅ Export metric summaries via `scripts/summarize_metrics.py`.
+3. ✅ Review documentation in `docs/` (research report, case study, presentation script).
+4. 📹 Record a ~15-minute presentation using `docs/presentation_script.md`.
+5. 📦 Zip the repository including `src/`, `scripts/`, `docs/`, `artifacts/`, `requirements.txt`, `README.md`, and generated videos.
+6. 📤 Upload the ZIP together with the presentation recording (e.g., Google Drive link).
 
 ## Contact
 For questions about the implementation, refer to the inline code comments in each Python file.

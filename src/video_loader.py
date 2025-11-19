@@ -28,10 +28,12 @@ class VideoLoader:
                 frame = np.zeros((self.resize_dim[1], self.resize_dim[0], 3), dtype=np.uint8)
                 cx = 50 + i * 5
                 cy = 240
+                gt_mask = np.zeros((self.resize_dim[1], self.resize_dim[0]), dtype=np.uint8)
                 # Simulate occlusion: Object disappears between frame 40 and 60
                 if not (40 < i < 60):
                     cv2.circle(frame, (cx, cy), 20, (0, 255, 0), -1)
-                yield frame, i
+                    cv2.circle(gt_mask, (cx, cy), 20, 255, -1)
+                yield frame, i, gt_mask
         else:
             frame_idx = 0
             while self.cap.isOpened():
@@ -39,5 +41,5 @@ class VideoLoader:
                 if not ret:
                     break
                 frame = cv2.resize(frame, self.resize_dim)
-                yield frame, frame_idx
+                yield frame, frame_idx, None
                 frame_idx += 1

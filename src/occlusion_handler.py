@@ -17,10 +17,8 @@ class KalmanTracker:
         self.last_valid_pos = None
         self.is_occluded = False
 
-    def update(self, mask, score):
-        """
-        Update the tracker with the latest SAM 2 mask and score.
-        """
+    def update(self, mask, score, quality_info, frame_idx, frame_shape, memory_manager=None):
+        """Fuse SAM2 predictions with Kalman estimates and memory-backed recovery."""
         # 1. Predict next state
         prediction = self.kf.predict()
         pred_x, pred_y = int(prediction[0]), int(prediction[1])
@@ -28,7 +26,9 @@ class KalmanTracker:
         # 2. Check measurement (SAM 2 output)
         measured_x, measured_y = None, None
         
-        if score > 0.5 and np.sum(mask) > 0:
+        is_reliable = quality_info.get("is_reliable", False)
+
+        if is_reliable and np.sum(mask) > 0:
             # Valid detection
             M = cv2.moments(mask)
             if M["m00"] != 0:
@@ -39,6 +39,8 @@ class KalmanTracker:
                 self.kf.correct(np.array([[np.float32(measured_x)], [np.float32(measured_y)]]))
                 self.last_valid_pos = (measured_x, measured_y)
                 self.is_occluded = False
+                if memory_manager is not None:
+                    memory_manager.store(frame_idx, mask, quality_info.get("quality", score))
                 return mask, (measured_x, measured_y), "Tracking"
         
         # 3. Handle Occlusion
@@ -49,6 +51,11 @@ class KalmanTracker:
         # In a real app, we might warp the previous mask using Optical Flow
         # Here we just draw a circle at the predicted position
         refined_mask = np.zeros_like(mask)
-        cv2.circle(refined_mask, (pred_x, pred_y), 20, 255, -1)
+        if memory_manager is not None:
+            memory_mask = memory_manager.retrieve((pred_x, pred_y), frame_shape)
+            if memory_mask is not None and np.count_nonzero(memory_mask) > 0:
+                refined_mask = memory_mask
+        if np.count_nonzero(refined_mask) == 0:
+            cv2.circle(refined_mask, (pred_x, pred_y), 20, 255, -1)
         
         return refined_mask, (pred_x, pred_y), "Occluded (KF Prediction)"
