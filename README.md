@@ -108,15 +108,3 @@ All research documentation is available in the artifacts:
 ```bash
 ffmpeg -i output_video.avi output_video.mp4
 ```
-
-## Next Steps for Assignment Submission
-
-1. ✅ Run baseline and proposed pipelines to produce artifacts.
-2. ✅ Export metric summaries via `scripts/summarize_metrics.py`.
-3. ✅ Review documentation in `docs/` (research report, case study, presentation script).
-4. 📹 Record a ~15-minute presentation using `docs/presentation_script.md`.
-5. 📦 Zip the repository including `src/`, `scripts/`, `docs/`, `artifacts/`, `requirements.txt`, `README.md`, and generated videos.
-6. 📤 Upload the ZIP together with the presentation recording (e.g., Google Drive link).
-
-## Contact
-For questions about the implementation, refer to the inline code comments in each Python file.
