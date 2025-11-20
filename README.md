@@ -3,7 +3,14 @@
 ## Overview
 This project implements **SAM2-Refine+**, a robust video segmentation system that augments SAM 2 with adaptive quality gating, memory-backed occlusion recovery, and automated evaluation utilities for autonomous driving scenarios.
 
-[See demo explanation here.](https://youtu.be/IPCUVS6_EUg)
+<div align="center">
+    <a href="https://youtu.be/IPCUVS6_EUg">
+        <img src="https://img.youtube.com/vi/IPCUVS6_EUg/0.jpg" alt="SAM2 Demo Video" width="800"/>
+    </a>
+    <br>
+    <b>▶ Click to Watch the SAM2-Refine+ Demo</b>
+</div>
+
 
 ## Project Structure
 ```
